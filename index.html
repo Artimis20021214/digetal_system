@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>生理訊號特徵工程微學習平台</title>
+    <title>生理訊號特徵工程微學習平台 - 鷹架版</title>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
@@ -16,12 +16,13 @@
         .unit-btn:hover { background-color: #edf2f7; border-color: #94a3b8; }
         .unit-btn.active { background-color: #3b82f6; color: white; border-color: #2563eb; }
         #formula-box { background: #f8fafc; padding: 10px; border-left: 4px solid #3b82f6; margin: 15px 0; overflow-x: auto; }
-        textarea { width: 100%; height: 280px; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background-color: #1e1e1e; color: #d4d4d4; resize: vertical; }
+        textarea { width: 100%; height: 260px; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background-color: #1e1e1e; color: #d4d4d4; resize: vertical; }
         .btn-submit { background-color: #10b981; color: white; border: none; padding: 12px 24px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: background 0.2s; }
         .btn-submit:hover { background-color: #059669; }
         .result-card { margin-top: 15px; padding: 15px; border-radius: 6px; display: none; }
         .status-Accepted { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
         .status-Error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .scaffold-card { margin-top: 15px; padding: 15px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; color: #1e40af; display: none; }
         .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .metric-card { background: #f1f5f9; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e2e8f0; }
         .metric-value { font-size: 24px; font-weight: bold; color: #1e3a8a; margin-top: 5px; }
@@ -31,13 +32,13 @@
 
 <header>
     <h1>生理訊號時域特徵工程微學習平台</h1>
-    <p>控制端工作站 — 雲端無伺服器與本地通用部署環境</p>
+    <p>控制端工作站 — 自適應動態提示鷹架部署環境</p>
 </header>
 
 <div class="container">
     <div>
         <div class="panel" style="margin-bottom: 20px;">
-            <h2>工廠全景導覽 (單元選擇)</h2>
+            <h2>工廠全景導覽 (學習單元)</h2>
             <div id="unit-list"></div>
         </div>
         
@@ -61,34 +62,57 @@
         <p id="unit-desc">載入中...</p>
         <div id="formula-box">學理公式加載中...</div>
         
+        <div id="scaffold-box" class="scaffold-card"></div>
+        
         <h2>演算法編寫沙盒 (Python 3)</h2>
         <textarea id="code-editor" spellcheck="false"></textarea>
-        <button class="btn-submit" onclick="submitCode()">提交至品質檢定中心</button>
+        <button class="btn-submit" onclick="submitCode()">提交至雲端品質檢定中心</button>
         
         <div id="result-box" class="result-card"></div>
     </div>
 </div>
 
 <script>
-    // 內嵌微學習單元資料庫 (工廠結構隱喻)
+    // 內嵌微學習單元與層級鷹架提示庫
     const unitsData = {
         "1": {
             "unit_id": "1",
             "title": "時域 HRV 特徵 - RMSSD 實作",
             "formula": "$$RMSSD = \\sqrt{\\frac{1}{N-1} \\sum_{i=1}^{N-1} (RR_{i+1} - RR_i)^2}$$",
-            "description": "請實作名為 'calculate_features' 的函式，輸入為 RR 間期列表（毫秒），輸出為相鄰 RR 間期差值之均方根值（float）。該指標對高頻心率變化敏感，常用於評估副交感神經活性。",
-            "template": "def calculate_features(rr_intervals):\n    if len(rr_intervals) < 2:\n        return 0.0\n    diff_squares = [(rr_intervals[i+1] - rr_intervals[i]) ** 2 for i in range(len(rr_intervals) - 1)]\n    return math.sqrt(sum(diff_squares) / len(diff_squares))"
+            "description": "請實作 'calculate_features(rr_intervals)' 函式，計算相鄰 RR 間期差值之均方根值。",
+            "template": "def calculate_features(rr_intervals):\n    if len(rr_intervals) < 2:\n        return 0.0\n    diff_squares = [(rr_intervals[i+1] - rr_intervals[i]) ** 2 for i in range(len(rr_intervals) - 1)]\n    return math.sqrt(sum(diff_squares) / len(diff_squares))",
+            "hints": [
+                "提示等級 1 (基本邊界)：注意輸入列表長度小於 2 的極端狀況，必須回傳 0.0，避免分母為零。",
+                "提示等級 2 (演算法結構)：先利用迴圈計算相鄰兩項之差值並平方，接著將平方和除以 (N-1) 取得均值，最後執行 math.sqrt() 開根號。"
+            ]
         },
         "2": {
             "unit_id": "2",
             "title": "時域 HRV 特徵 - SDNN 實作",
             "formula": "$$SDNN = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (RR_i - \\overline{RR})^2}$$",
-            "description": "請實作名為 'calculate_features' 的函式，輸入為 RR 間期列表（毫秒），輸出為標準 NN 間期之標準差（float）。該指標代表整體心率變異度，反映自律神經系統之總體調控能力。",
-            "template": "def calculate_features(rr_intervals):\n    n = len(rr_intervals)\n    if n == 0:\n        return 0.0\n    mean_val = sum(rr_intervals) / n\n    variance = sum((x - mean_val) ** 2 for x in rr_intervals) / n\n    return math.sqrt(variance)"
+            "description": "請實作 'calculate_features(rr_intervals)' 函式，計算標準 NN 間期之總體標準差。",
+            "template": "def calculate_features(rr_intervals):\n    n = len(rr_intervals)\n    if n == 0:\n        return 0.0\n    mean_val = sum(rr_intervals) / n\n    variance = sum((x - mean_val) ** 2 for x in rr_intervals) / n\n    return math.sqrt(variance)",
+            "hints": [
+                "提示等級 1 (基本邊界)：時域生理訊號統計中，若間期列表長度為 0，請直接攔截並回傳 0.0。",
+                "提示等級 2 (演算法結構)：時域 HRV 標準定義中，SDNN 的方差分母採用總個數 N（總體標準差），而非傳統統計學的 N-1（樣本標準差），請檢查分母設計。"
+            ]
+        },
+        "3": {
+            "unit_id": "3",
+            "title": "時域 HRV 特徵 - pNN50 實作",
+            "formula": "$$pNN50 = \\frac{NN50}{總間期差值數} \\times 100\\%$$",
+            "description": "請實作 'calculate_features(rr_intervals)' 函式。計算相鄰 RR 間期差值絕對值超過 50 毫秒的個數 (NN50)，佔總相鄰差值數量的百分比 (float，範圍為 0.0 至 100.0)。",
+            "template": "def calculate_features(rr_intervals):\n    if len(rr_intervals) < 2:\n        return 0.0\n    count_50 = 0\n    for i in range(len(rr_intervals) - 1):\n        diff = abs(rr_intervals[i+1] - rr_intervals[i])\n        if diff > 50:\n            count_50 += 1\n    return (count_50 / (len(rr_intervals) - 1)) * 100",
+            "hints": [
+                "提示等級 1 (基本邊界)：若輸入間期少於 2 個，無法形成任何相鄰差值，總差值數為 0，此時應直接回傳 0.0。",
+                "提示等級 2 (演算法結構)：總相鄰差值數量為 (N-1)。請計算 abs(RR[i+1] - RR[i]) 嚴格大於 50 的次數，最後計算佔比時記得乘以 100 轉換為百分比。"
+            ]
         }
     };
 
     let currentUnitId = "1";
+    // 前端自適應錯誤次數追蹤器
+    let errorTracker = { "1": 0, "2": 0, "3": 0 };
 
     window.onload = function() {
         renderUnits();
@@ -122,8 +146,27 @@
         document.getElementById("code-editor").value = unit.template;
         document.getElementById("result-box").style.display = "none";
         
+        updateScaffolding();
+
         if (window.MathJax) {
             MathJax.typesetPromise();
+        }
+    }
+
+    // 動態更新提示鷹架區
+    function updateScaffolding() {
+        const scaffoldBox = document.getElementById("scaffold-box");
+        const currentErrors = errorTracker[currentUnitId];
+        const hints = unitsData[currentUnitId].hints;
+
+        if (currentErrors === 1) {
+            scaffoldBox.style.display = "block";
+            scaffoldBox.innerHTML = `<strong>鷹架介入啟用 (連續錯誤 1 次)：</strong><br>${hints[0]}`;
+        } else if (currentErrors >= 2) {
+            scaffoldBox.style.display = "block";
+            scaffoldBox.innerHTML = `<strong>高階鷹架介入啟用 (連續錯誤 ${currentErrors} 次)：</strong><br>${hints[0]}<br><br>${hints[1]}`;
+        } else {
+            scaffoldBox.style.display = "none";
         }
     }
 
@@ -147,12 +190,18 @@
             if (resData.status === "Accepted") {
                 resultBox.className = "result-card status-Accepted";
                 resultBox.innerHTML = `<strong>品質檢定通過 (Accepted)</strong><br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%<br>校驗耗時: ${resData.execution_time_ms} ms`;
+                
+                // 答對則清除該單元的錯誤計數，撤除鷹架支援
+                errorTracker[currentUnitId] = 0;
             } else {
                 resultBox.className = "result-card status-Error";
                 resultBox.innerHTML = `<strong>品質檢定未通過 (${resData.status})</strong><br>錯誤訊息: ${resData.error_message || '數值校驗不匹配'}<br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%`;
+                
+                // 答錯則累加錯誤計數，觸發更高級別提示
+                errorTracker[currentUnitId] += 1;
             }
             
-            // 更新管理端即時統計指標
+            updateScaffolding();
             document.getElementById("global-mastery").innerText = `${resData.global_mastery_rate}%`;
             document.getElementById("global-error").innerText = `${resData.global_average_error_rate}%`;
 
