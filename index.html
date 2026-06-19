@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>生理訊號特徵工程微學習平台 - 鷹架版</title>
+    <title>生理訊號特徵工程微學習平台 - 學理整合版</title>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
@@ -26,19 +26,23 @@
         .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .metric-card { background: #f1f5f9; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e2e8f0; }
         .metric-value { font-size: 24px; font-weight: bold; color: #1e3a8a; margin-top: 5px; }
+        .knowledge-content { line-height: 1.7; color: #334155; display: none; }
+        .knowledge-content h3 { color: #0f172a; margin-top: 20px; border-left: 4px solid #10b981; padding-left: 8px; font-size: 16px; }
+        .knowledge-content ul { padding-left: 20px; }
+        .knowledge-content li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>生理訊號時域特徵工程微學習平台</h1>
-    <p>控制端工作站 — 自適應動態提示鷹架部署環境</p>
+    <p>控制端工作站 — 雲端無伺服器與學理圖書館整合部署環境</p>
 </header>
 
 <div class="container">
     <div>
         <div class="panel" style="margin-bottom: 20px;">
-            <h2>工廠全景導覽 (學習單元)</h2>
+            <h2>工廠全景導覽 (功能選擇)</h2>
             <div id="unit-list"></div>
         </div>
         
@@ -59,21 +63,42 @@
 
     <div class="panel">
         <h2 id="workstation-title">運算工作站</h2>
-        <p id="unit-desc">載入中...</p>
-        <div id="formula-box">學理公式加載中...</div>
         
-        <div id="scaffold-box" class="scaffold-card"></div>
-        
-        <h2>演算法編寫沙盒 (Python 3)</h2>
-        <textarea id="code-editor" spellcheck="false"></textarea>
-        <button class="btn-submit" onclick="submitCode()">提交至雲端品質檢定中心</button>
-        
-        <div id="result-box" class="result-card"></div>
+        <div id="knowledge-area" class="knowledge-content">
+            <p>心率變異度（Heart Rate Variability, HRV）是指連續心跳之間時間間隔（通常稱為 RR 間期或 NN 間期）的微小波動與變化程度。此波動受體內自律神經系統（Autonomic Nervous System, ANS）的精細調控，反映了心臟應對內外部環境刺激之即時自適應調整能力，而非完全固定的物理節律。</p>
+            
+            <h3>一、 生理調控機制與自律神經系統</h3>
+            <p>自律神經系統主要由交感神經（Sympathetic Nervous System, SNS）與副交感神經（Parasympathetic Nervous System, PNS，主要由迷走神經 Vagus Nerve 主導）所組成，兩者共同作用於心臟的竇房結（Sinoatrial Node），呈現拮抗交互作用：</p>
+            <ul>
+                <li><strong>交感神經活性提升</strong>：在壓力、恐懼或運動狀態下啟動（戰或逃反應），釋放去甲腎上腺素，導致心跳加快、RR 間期縮短且心搏間的變異程度降低。</li>
+                <li><strong>副交感神經活性提升</strong>：在放鬆、休息及消化狀態下佔優勢（休息與消化反應），釋放乙醯膽鹼，減緩心跳速度、使 RR 間期延長且搏動間的變異度顯著增加。因此，具備較高的心率變異度（HRV）通常代表個體擁有更佳的自律神經調節彈性與心理抗壓韌性。</li>
+            </ul>
+            
+            <h3>二、 時域特徵指標（Time-Domain Metrics）學理核心</h3>
+            <p>在本學習平台後續的實作單元中，將針對以下三個核心時域特徵進行核心演算法開發：</p>
+            <ul>
+                <li><strong>SDNN（Standard Deviation of NN intervals）</strong>：全體 NN 間期的標準差。反映自律神經系統調控的總體活性，受交感與副交感神經協同調制之綜合結果。</li>
+                <li><strong>RMSSD（Root Mean Square of Successive Differences）</strong>：相鄰 NN 間期差值之均方根。主要敏感反映副交感神經活性與迷走神經張力的快速高頻波動。</li>
+                <li><strong>pNN50（Percentage of successive NN intervals differing by more than 50ms）</strong>：相鄰 NN 間期差值絕對值超過 50 毫秒的個數佔總間期差值數量的百分比。與 RMSSD 具備高度線性正相關，同樣作為評估迷走神經張力的核心敏感指標。</li>
+            </ul>
+            
+            <h3>三、 資訊工程應用價值</h3>
+            <p>在資訊工程、大數據與機器學習研究領域，HRV 時域特徵被廣泛用作情感運算（Affective Computing）、心理壓力偵測模型（Stress Detection）、生理回饋訓練以及疲勞駕駛預警系統之特徵矩陣（Feature Matrix），是連接生理訊號學理與可解釋性人工智慧（XAI）的重要實作基礎。</p>
+        </div>
+
+        <div id="practice-area">
+            <p id="unit-desc">載入中...</p>
+            <div id="formula-box">學理公式加載中...</div>
+            <div id="scaffold-box" class="scaffold-card"></div>
+            <h2 style="margin-top: 20px; font-size: 16px;">演算法編寫沙盒 (Python 3)</h2>
+            <textarea id="code-editor" spellcheck="false"></textarea>
+            <button class="btn-submit" onclick="submitCode()">提交至雲端品質檢定中心</button>
+            <div id="result-box" class="result-card"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // 內嵌微學習單元與層級鷹架提示庫
     const unitsData = {
         "1": {
             "unit_id": "1",
@@ -110,18 +135,28 @@
         }
     };
 
-    let currentUnitId = "1";
-    // 前端自適應錯誤次數追蹤器
+    // 初始化進入點設定為學理知識庫頁面
+    let currentUnitId = "knowledge";
     let errorTracker = { "1": 0, "2": 0, "3": 0 };
 
     window.onload = function() {
         renderUnits();
-        switchUnit("1");
+        switchUnit("knowledge");
     };
 
     function renderUnits() {
         const listContainer = document.getElementById("unit-list");
         listContainer.innerHTML = "";
+        
+        // 建立常駐學理導讀按鈕 (圖書館隱喻)
+        const kmBtn = document.createElement("button");
+        kmBtn.className = `unit-btn` + (currentUnitId === "knowledge" ? " active" : "");
+        kmBtn.id = "btn-knowledge";
+        kmBtn.innerText = "基本學理：HRV 自律神經導論";
+        kmBtn.onclick = () => switchUnit("knowledge");
+        listContainer.appendChild(kmBtn);
+        
+        // 渲染實作單元按鈕
         Object.values(unitsData).forEach(unit => {
             const btn = document.createElement("button");
             btn.className = `unit-btn` + (unit.unit_id === currentUnitId ? ' active' : '');
@@ -138,22 +173,36 @@
         if(activeBtn) activeBtn.classList.add("active");
         
         currentUnitId = unitId;
-        const unit = unitsData[unitId];
+        const knowledgeArea = document.getElementById("knowledge-area");
+        const practiceArea = document.getElementById("practice-area");
+        const resultBox = document.getElementById("result-box");
         
-        document.getElementById("workstation-title").innerText = `運算工作站 — ${unit.title}`;
-        document.getElementById("unit-desc").innerText = unit.description;
-        document.getElementById("formula-box").innerHTML = unit.formula;
-        document.getElementById("code-editor").value = unit.template;
-        document.getElementById("result-box").style.display = "none";
+        if (unitId === "knowledge") {
+            // 切換至學理導讀畫面
+            document.getElementById("workstation-title").innerText = "學理導讀中心 — 心率變異度 (HRV) 基礎科學";
+            practiceArea.style.display = "none";
+            knowledgeArea.style.display = "block";
+            resultBox.style.display = "none";
+        } else {
+            // 切換至編寫實作畫面
+            practiceArea.style.display = "block";
+            knowledgeArea.style.display = "none";
+            
+            const unit = unitsData[unitId];
+            document.getElementById("workstation-title").innerText = `運算工作站 — ${unit.title}`;
+            document.getElementById("unit-desc").innerText = unit.description;
+            document.getElementById("formula-box").innerHTML = unit.formula;
+            document.getElementById("code-editor").value = unit.template;
+            resultBox.style.display = "none";
+            
+            updateScaffolding();
+        }
         
-        updateScaffolding();
-
         if (window.MathJax) {
             MathJax.typesetPromise();
         }
     }
 
-    // 動態更新提示鷹架區
     function updateScaffolding() {
         const scaffoldBox = document.getElementById("scaffold-box");
         const currentErrors = errorTracker[currentUnitId];
@@ -190,14 +239,10 @@
             if (resData.status === "Accepted") {
                 resultBox.className = "result-card status-Accepted";
                 resultBox.innerHTML = `<strong>品質檢定通過 (Accepted)</strong><br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%<br>校驗耗時: ${resData.execution_time_ms} ms`;
-                
-                // 答對則清除該單元的錯誤計數，撤除鷹架支援
                 errorTracker[currentUnitId] = 0;
             } else {
                 resultBox.className = "result-card status-Error";
                 resultBox.innerHTML = `<strong>品質檢定未通過 (${resData.status})</strong><br>錯誤訊息: ${resData.error_message || '數值校驗不匹配'}<br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%`;
-                
-                // 答錯則累加錯誤計數，觸發更高級別提示
                 errorTracker[currentUnitId] += 1;
             }
             
