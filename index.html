@@ -209,13 +209,29 @@
         const listContainer = document.getElementById("unit-list");
         listContainer.innerHTML = "";
         
+        // 知識庫導覽按鈕
         const kmBtn = document.createElement("button");
         kmBtn.className = `unit-btn` + (currentUnitId === "knowledge" ? " active" : "");
         kmBtn.id = "btn-knowledge";
         kmBtn.innerText = "基本學理：HRV 自律神經導論";
         kmBtn.onclick = () => switchUnit("knowledge");
         listContainer.appendChild(kmBtn);
+
+        const ecgBtn = document.createElement("button");
+        ecgBtn.className = `unit-btn` + (currentUnitId === "ecg" ? " active" : "");
+        ecgBtn.id = "btn-ecg";
+        ecgBtn.innerText = "基本學理：ECG 心電圖波型";
+        ecgBtn.onclick = () => switchUnit("ecg");
+        listContainer.appendChild(ecgBtn);
+
+        const simBtn = document.createElement("button");
+        simBtn.className = `unit-btn` + (currentUnitId === "sim" ? " active" : "");
+        simBtn.id = "btn-sim";
+        simBtn.innerText = "探索體驗：HRV 動態模擬器";
+        simBtn.onclick = () => switchUnit("sim");
+        listContainer.appendChild(simBtn);
         
+        // 實作單元導覽按鈕
         Object.values(unitsData).forEach(unit => {
             const btn = document.createElement("button");
             btn.className = `unit-btn` + (unit.unit_id === currentUnitId ? ' active' : '');
@@ -233,27 +249,41 @@
         
         currentUnitId = unitId;
         const knowledgeArea = document.getElementById("knowledge-area");
+        const ecgArea = document.getElementById("ecg-knowledge-area");
+        const simArea = document.getElementById("simulator-area");
         const practiceArea = document.getElementById("practice-area");
         const resultBox = document.getElementById("result-box");
         
+        // 初始化全部隱藏
+        knowledgeArea.style.display = "none";
+        ecgArea.style.display = "none";
+        simArea.style.display = "none";
+        practiceArea.style.display = "none";
+        if(resultBox) resultBox.style.display = "none";
+
+        // 停止模擬器動畫(若在運行中)
+        if (window.stopSimulator) window.stopSimulator();
+
         if (unitId === "knowledge") {
-            document.getElementById("workstation-title").innerText = "學理導讀中心";
-            practiceArea.style.display = "none";
+            document.getElementById("workstation-title").innerText = "學理導讀中心 — 心率變異度 (HRV)";
             knowledgeArea.style.display = "block";
-            resultBox.style.display = "none";
+        } else if (unitId === "ecg") {
+            document.getElementById("workstation-title").innerText = "學理導讀中心 — 完整心跳波型 (PQRST)";
+            ecgArea.style.display = "block";
+        } else if (unitId === "sim") {
+            document.getElementById("workstation-title").innerText = "探索體驗 — HRV 自律神經動態模擬";
+            simArea.style.display = "block";
+            if (window.startSimulator) window.startSimulator();
         } else {
             practiceArea.style.display = "block";
-            knowledgeArea.style.display = "none";
-            
             const unit = unitsData[unitId];
             document.getElementById("workstation-title").innerText = `運算工作站 — ${unit.title}`;
             document.getElementById("unit-desc").innerText = unit.description;
             document.getElementById("formula-box").innerHTML = unit.formula;
             document.getElementById("code-editor").value = unit.template;
-            resultBox.style.display = "none";
             
             updateScaffolding();
-            loadComments(unitId); // 切換單元時動態讀取留言
+            loadComments(unitId);
         }
         
         if (window.MathJax) {
@@ -359,6 +389,129 @@
         } catch (err) {
             resultBox.className = "result-card status-Error";
             resultBox.innerText = "服務未回應。";
+        }
+    }
+    // ==========================================
+    // HRV 動態心電圖模擬器引擎
+    // ==========================================
+    let simAnimationId;
+    let ecgPoints = [];
+    let currentX = 0;
+    let hrvState = 'high';
+    let nextBeatTime = 0;
+    let currentTimeMs = 0;
+    let lastRPeakTime = 0;
+
+    function setHrvMode(mode) {
+        hrvState = mode;
+        const readout = document.getElementById('sim-readout');
+        readout.style.color = (mode === 'high') ? '#10b981' : '#ef4444';
+    }
+
+    function generatePQRST(startX, baselineY) {
+        // 簡化之 PQRST 參數化波型繪製點位
+        const points = [];
+        let x = startX;
+        // P Wave
+        for(let i=0; i<10; i++) { points.push({x: x++, y: baselineY - Math.sin(i*Math.PI/10)*5}); }
+        x += 5; // PR Segment
+        // QRS Complex
+        points.push({x: x++, y: baselineY + 5});   // Q
+        points.push({x: x+2, y: baselineY - 60});  // R Peak
+        points.push({x: x+4, y: baselineY + 10});  // S
+        x += 6;
+        points.push({x: x++, y: baselineY});
+        x += 10; // ST Segment
+        // T Wave
+        for(let i=0; i<15; i++) { points.push({x: x++, y: baselineY - Math.sin(i*Math.PI/15)*8}); }
+        return { points: points, endX: x };
+    }
+
+    function startSimulator() {
+        const canvas = document.getElementById('ecg-canvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        
+        ecgPoints = [];
+        currentX = 0;
+        currentTimeMs = 0;
+        nextBeatTime = 50; 
+        
+        function drawLoop() {
+            // 推進時間 (每幀模擬約 10ms)
+            currentTimeMs += 10;
+            currentX += 1.5;
+
+            // 產生心跳判斷邏輯
+            if (currentTimeMs >= nextBeatTime) {
+                const baseline = canvas.height / 2 + 20;
+                const beatData = generatePQRST(currentX, baseline);
+                ecgPoints = ecgPoints.concat(beatData.points);
+                
+                // 計算下一次心跳時間 (植入 HRV 變異數)
+                // 基礎 RR 間期為 800ms
+                let baseRR = 800;
+                let jitter = 0;
+                
+                if (hrvState === 'high') {
+                    // 高心率變異度：隨機波動介於 -150ms ~ +150ms
+                    jitter = Math.floor(Math.random() * 301) - 150;
+                } else {
+                    // 低心率變異度：僵化固著，僅有 -10ms ~ +10ms 誤差
+                    jitter = Math.floor(Math.random() * 21) - 10;
+                }
+                
+                let currentRR = baseRR + jitter;
+                nextBeatTime = currentTimeMs + currentRR;
+                
+                document.getElementById('sim-readout').innerText = `目前 RR 間期: ${currentRR} ms`;
+            }
+
+            // 若目前沒有特定波型，維持等電位線 (Isoelectric line)
+            if (ecgPoints.length === 0 || ecgPoints[ecgPoints.length-1].x < currentX) {
+                ecgPoints.push({x: currentX, y: canvas.height / 2 + 20});
+            }
+
+            // 畫面推進與清理超出視野之點位
+            if (currentX > canvas.width) {
+                const shift = currentX - canvas.width;
+                currentX = canvas.width;
+                ecgPoints = ecgPoints.filter(p => p.x > shift);
+                ecgPoints.forEach(p => p.x -= shift);
+            }
+
+            // 執行渲染
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製背景網格 (模擬標準心電圖紙)
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+            for(let i=0; i<canvas.height; i+=20) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+
+            // 繪製心電訊號線
+            ctx.strokeStyle = (hrvState === 'high') ? '#10b981' : '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (ecgPoints.length > 0) {
+                ctx.moveTo(ecgPoints[0].x, ecgPoints[0].y);
+                for (let i = 1; i < ecgPoints.length; i++) {
+                    ctx.lineTo(ecgPoints[i].x, ecgPoints[i].y);
+                }
+            }
+            ctx.stroke();
+
+            simAnimationId = requestAnimationFrame(drawLoop);
+        }
+        
+        drawLoop();
+    }
+
+    function stopSimulator() {
+        if (simAnimationId) {
+            cancelAnimationFrame(simAnimationId);
+            simAnimationId = null;
         }
     }
 </script>
