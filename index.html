@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>生理訊號特徵工程微學習平台 - 學理整合版</title>
+    <title>生理訊號特徵工程微學習平台 - 討論區整合版</title>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
@@ -16,7 +16,7 @@
         .unit-btn:hover { background-color: #edf2f7; border-color: #94a3b8; }
         .unit-btn.active { background-color: #3b82f6; color: white; border-color: #2563eb; }
         #formula-box { background: #f8fafc; padding: 10px; border-left: 4px solid #3b82f6; margin: 15px 0; overflow-x: auto; }
-        textarea { width: 100%; height: 260px; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background-color: #1e1e1e; color: #d4d4d4; resize: vertical; }
+        textarea.code-editor { width: 100%; height: 260px; font-family: 'Courier New', Courier, monospace; font-size: 14px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; background-color: #1e1e1e; color: #d4d4d4; resize: vertical; }
         .btn-submit { background-color: #10b981; color: white; border: none; padding: 12px 24px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: background 0.2s; }
         .btn-submit:hover { background-color: #059669; }
         .result-card { margin-top: 15px; padding: 15px; border-radius: 6px; display: none; }
@@ -27,27 +27,36 @@
         .metric-card { background: #f1f5f9; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e2e8f0; }
         .metric-value { font-size: 24px; font-weight: bold; color: #1e3a8a; margin-top: 5px; }
         .knowledge-content { line-height: 1.7; color: #334155; display: none; }
-        .knowledge-content h3 { color: #0f172a; margin-top: 20px; border-left: 4px solid #10b981; padding-left: 8px; font-size: 16px; }
-        .knowledge-content ul { padding-left: 20px; }
-        .knowledge-content li { margin-bottom: 8px; }
+        
+        /* 討論區專用樣式 */
+        .discussion-panel { margin-top: 30px; border-top: 2px solid #e2e8f0; padding-top: 20px; }
+        .comment-list { max-height: 250px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; background-color: #f8fafc; }
+        .comment-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+        .comment-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .comment-meta { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .comment-text { font-size: 14px; color: #0f172a; }
+        .comment-input-area { display: flex; gap: 10px; }
+        .comment-input { flex-grow: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; min-height: 40px; font-family: inherit; }
+        .btn-comment { background-color: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .btn-comment:hover { background-color: #2563eb; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>生理訊號時域特徵工程微學習平台</h1>
-    <p>控制端工作站 — 雲端無伺服器與學理圖書館整合部署環境</p>
+    <p>控制端工作站 — 包含互動討論區之數位學習環境</p>
 </header>
 
 <div class="container">
     <div>
         <div class="panel" style="margin-bottom: 20px;">
-            <h2>工廠全景導覽 (功能選擇)</h2>
+            <h2>工廠全景導覽</h2>
             <div id="unit-list"></div>
         </div>
         
         <div class="panel">
-            <h2>管理端儀表板 (全班指標)</h2>
+            <h2>管理端儀表板</h2>
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div style="font-size: 12px; color: #64748b;">精熟達成率</div>
@@ -65,35 +74,29 @@
         <h2 id="workstation-title">運算工作站</h2>
         
         <div id="knowledge-area" class="knowledge-content">
-            <p>心率變異度（Heart Rate Variability, HRV）是指連續心跳之間時間間隔（通常稱為 RR 間期或 NN 間期）的微小波動與變化程度。此波動受體內自律神經系統（Autonomic Nervous System, ANS）的精細調控，反映了心臟應對內外部環境刺激之即時自適應調整能力，而非完全固定的物理節律。</p>
-            
-            <h3>一、 生理調控機制與自律神經系統</h3>
-            <p>自律神經系統主要由交感神經（Sympathetic Nervous System, SNS）與副交感神經（Parasympathetic Nervous System, PNS，主要由迷走神經 Vagus Nerve 主導）所組成，兩者共同作用於心臟的竇房結（Sinoatrial Node），呈現拮抗交互作用：</p>
-            <ul>
-                <li><strong>交感神經活性提升</strong>：在壓力、恐懼或運動狀態下啟動（戰或逃反應），釋放去甲腎上腺素，導致心跳加快、RR 間期縮短且心搏間的變異程度降低。</li>
-                <li><strong>副交感神經活性提升</strong>：在放鬆、休息及消化狀態下佔優勢（休息與消化反應），釋放乙醯膽鹼，減緩心跳速度、使 RR 間期延長且搏動間的變異度顯著增加。因此，具備較高的心率變異度（HRV）通常代表個體擁有更佳的自律神經調節彈性與心理抗壓韌性。</li>
-            </ul>
-            
-            <h3>二、 時域特徵指標（Time-Domain Metrics）學理核心</h3>
-            <p>在本學習平台後續的實作單元中，將針對以下三個核心時域特徵進行核心演算法開發：</p>
-            <ul>
-                <li><strong>SDNN（Standard Deviation of NN intervals）</strong>：全體 NN 間期的標準差。反映自律神經系統調控的總體活性，受交感與副交感神經協同調制之綜合結果。</li>
-                <li><strong>RMSSD（Root Mean Square of Successive Differences）</strong>：相鄰 NN 間期差值之均方根。主要敏感反映副交感神經活性與迷走神經張力的快速高頻波動。</li>
-                <li><strong>pNN50（Percentage of successive NN intervals differing by more than 50ms）</strong>：相鄰 NN 間期差值絕對值超過 50 毫秒的個數佔總間期差值數量的百分比。與 RMSSD 具備高度線性正相關，同樣作為評估迷走神經張力的核心敏感指標。</li>
-            </ul>
-            
-            <h3>三、 資訊工程應用價值</h3>
-            <p>在資訊工程、大數據與機器學習研究領域，HRV 時域特徵被廣泛用作情感運算（Affective Computing）、心理壓力偵測模型（Stress Detection）、生理回饋訓練以及疲勞駕駛預警系統之特徵矩陣（Feature Matrix），是連接生理訊號學理與可解釋性人工智慧（XAI）的重要實作基礎。</p>
+            <p>心率變異度（HRV）是指連續心跳之間時間間隔的微小波動與變化程度。請從左側導覽列選擇實作單元開始練習。</p>
         </div>
 
         <div id="practice-area">
             <p id="unit-desc">載入中...</p>
             <div id="formula-box">學理公式加載中...</div>
             <div id="scaffold-box" class="scaffold-card"></div>
+            
             <h2 style="margin-top: 20px; font-size: 16px;">演算法編寫沙盒 (Python 3)</h2>
-            <textarea id="code-editor" spellcheck="false"></textarea>
+            <textarea id="code-editor" class="code-editor" spellcheck="false"></textarea>
             <button class="btn-submit" onclick="submitCode()">提交至雲端品質檢定中心</button>
             <div id="result-box" class="result-card"></div>
+            
+            <div class="discussion-panel">
+                <h2 style="font-size: 16px;">單元討論區 (Mentoring & Discussion)</h2>
+                <div id="comments-list" class="comment-list">
+                    載入留言中...
+                </div>
+                <div class="comment-input-area">
+                    <textarea id="new-comment-text" class="comment-input" placeholder="在此輸入探討演算法細節或提問..."></textarea>
+                    <button class="btn-comment" onclick="postComment()">發布留言</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -106,10 +109,7 @@
             "formula": "$$RMSSD = \\sqrt{\\frac{1}{N-1} \\sum_{i=1}^{N-1} (RR_{i+1} - RR_i)^2}$$",
             "description": "請實作 'calculate_features(rr_intervals)' 函式，計算相鄰 RR 間期差值之均方根值。",
             "template": "def calculate_features(rr_intervals):\n    if len(rr_intervals) < 2:\n        return 0.0\n    diff_squares = [(rr_intervals[i+1] - rr_intervals[i]) ** 2 for i in range(len(rr_intervals) - 1)]\n    return math.sqrt(sum(diff_squares) / len(diff_squares))",
-            "hints": [
-                "提示等級 1 (基本邊界)：注意輸入列表長度小於 2 的極端狀況，必須回傳 0.0，避免分母為零。",
-                "提示等級 2 (演算法結構)：先利用迴圈計算相鄰兩項之差值並平方，接著將平方和除以 (N-1) 取得均值，最後執行 math.sqrt() 開根號。"
-            ]
+            "hints": ["提示等級 1：注意長度小於 2 的狀況。", "提示等級 2：先算差值平方，除以 N-1 取得均值，再開根號。"]
         },
         "2": {
             "unit_id": "2",
@@ -117,25 +117,18 @@
             "formula": "$$SDNN = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} (RR_i - \\overline{RR})^2}$$",
             "description": "請實作 'calculate_features(rr_intervals)' 函式，計算標準 NN 間期之總體標準差。",
             "template": "def calculate_features(rr_intervals):\n    n = len(rr_intervals)\n    if n == 0:\n        return 0.0\n    mean_val = sum(rr_intervals) / n\n    variance = sum((x - mean_val) ** 2 for x in rr_intervals) / n\n    return math.sqrt(variance)",
-            "hints": [
-                "提示等級 1 (基本邊界)：時域生理訊號統計中，若間期列表長度為 0，請直接攔截並回傳 0.0。",
-                "提示等級 2 (演算法結構)：時域 HRV 標準定義中，SDNN 的方差分母採用總個數 N（總體標準差），而非傳統統計學的 N-1（樣本標準差），請檢查分母設計。"
-            ]
+            "hints": ["提示等級 1：長度為 0 應回傳 0.0。", "提示等級 2：SDNN 分母採用總個數 N。"]
         },
         "3": {
             "unit_id": "3",
             "title": "時域 HRV 特徵 - pNN50 實作",
             "formula": "$$pNN50 = \\frac{NN50}{總間期差值數} \\times 100\\%$$",
-            "description": "請實作 'calculate_features(rr_intervals)' 函式。計算相鄰 RR 間期差值絕對值超過 50 毫秒的個數 (NN50)，佔總相鄰差值數量的百分比 (float，範圍為 0.0 至 100.0)。",
+            "description": "請實作 'calculate_features(rr_intervals)' 函式。計算絕對差值超過 50 毫秒的個數佔比。",
             "template": "def calculate_features(rr_intervals):\n    if len(rr_intervals) < 2:\n        return 0.0\n    count_50 = 0\n    for i in range(len(rr_intervals) - 1):\n        diff = abs(rr_intervals[i+1] - rr_intervals[i])\n        if diff > 50:\n            count_50 += 1\n    return (count_50 / (len(rr_intervals) - 1)) * 100",
-            "hints": [
-                "提示等級 1 (基本邊界)：若輸入間期少於 2 個，無法形成任何相鄰差值，總差值數為 0，此時應直接回傳 0.0。",
-                "提示等級 2 (演算法結構)：總相鄰差值數量為 (N-1)。請計算 abs(RR[i+1] - RR[i]) 嚴格大於 50 的次數，最後計算佔比時記得乘以 100 轉換為百分比。"
-            ]
+            "hints": ["提示等級 1：長度小於 2 應回傳 0.0。", "提示等級 2：計算大於 50 的次數，最後乘以 100。"]
         }
     };
 
-    // 初始化進入點設定為學理知識庫頁面
     let currentUnitId = "knowledge";
     let errorTracker = { "1": 0, "2": 0, "3": 0 };
 
@@ -148,7 +141,6 @@
         const listContainer = document.getElementById("unit-list");
         listContainer.innerHTML = "";
         
-        // 建立常駐學理導讀按鈕 (圖書館隱喻)
         const kmBtn = document.createElement("button");
         kmBtn.className = `unit-btn` + (currentUnitId === "knowledge" ? " active" : "");
         kmBtn.id = "btn-knowledge";
@@ -156,7 +148,6 @@
         kmBtn.onclick = () => switchUnit("knowledge");
         listContainer.appendChild(kmBtn);
         
-        // 渲染實作單元按鈕
         Object.values(unitsData).forEach(unit => {
             const btn = document.createElement("button");
             btn.className = `unit-btn` + (unit.unit_id === currentUnitId ? ' active' : '');
@@ -178,13 +169,11 @@
         const resultBox = document.getElementById("result-box");
         
         if (unitId === "knowledge") {
-            // 切換至學理導讀畫面
-            document.getElementById("workstation-title").innerText = "學理導讀中心 — 心率變異度 (HRV) 基礎科學";
+            document.getElementById("workstation-title").innerText = "學理導讀中心";
             practiceArea.style.display = "none";
             knowledgeArea.style.display = "block";
             resultBox.style.display = "none";
         } else {
-            // 切換至編寫實作畫面
             practiceArea.style.display = "block";
             knowledgeArea.style.display = "none";
             
@@ -196,6 +185,7 @@
             resultBox.style.display = "none";
             
             updateScaffolding();
+            loadComments(unitId); // 切換單元時動態讀取留言
         }
         
         if (window.MathJax) {
@@ -210,12 +200,60 @@
 
         if (currentErrors === 1) {
             scaffoldBox.style.display = "block";
-            scaffoldBox.innerHTML = `<strong>鷹架介入啟用 (連續錯誤 1 次)：</strong><br>${hints[0]}`;
+            scaffoldBox.innerHTML = `<strong>鷹架介入：</strong><br>${hints[0]}`;
         } else if (currentErrors >= 2) {
             scaffoldBox.style.display = "block";
-            scaffoldBox.innerHTML = `<strong>高階鷹架介入啟用 (連續錯誤 ${currentErrors} 次)：</strong><br>${hints[0]}<br><br>${hints[1]}`;
+            scaffoldBox.innerHTML = `<strong>進階鷹架：</strong><br>${hints[0]}<br><br>${hints[1]}`;
         } else {
             scaffoldBox.style.display = "none";
+        }
+    }
+
+    // 讀取單元留言邏輯
+    async function loadComments(unitId) {
+        const commentsList = document.getElementById("comments-list");
+        commentsList.innerHTML = "讀取中...";
+        try {
+            const response = await fetch(`/api/comments?unit_id=${unitId}`);
+            if (response.ok) {
+                const comments = await response.json();
+                commentsList.innerHTML = "";
+                if (comments.length === 0) {
+                    commentsList.innerHTML = "<div class='comment-item'><div class='comment-text'>目前無討論紀錄，成為第一個發問者。</div></div>";
+                    return;
+                }
+                comments.forEach(c => {
+                    commentsList.innerHTML += `
+                        <div class="comment-item">
+                            <div class="comment-meta">${c.user} • ${c.timestamp}</div>
+                            <div class="comment-text">${c.content}</div>
+                        </div>`;
+                });
+                commentsList.scrollTop = commentsList.scrollHeight;
+            }
+        } catch (err) {
+            commentsList.innerHTML = "留言讀取失敗。";
+        }
+    }
+
+    // 發布單元留言邏輯
+    async function postComment() {
+        const textInput = document.getElementById("new-comment-text");
+        const content = textInput.value.trim();
+        if (!content) return;
+
+        try {
+            const response = await fetch('/api/comments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ unit_id: currentUnitId, content: content })
+            });
+            if (response.ok) {
+                textInput.value = "";
+                loadComments(currentUnitId); // 重新載入以顯示新留言
+            }
+        } catch (err) {
+            alert("發布失敗，請確認網路狀態。");
         }
     }
 
@@ -225,7 +263,7 @@
         
         resultBox.style.display = "block";
         resultBox.className = "result-card";
-        resultBox.innerText = "品質檢定校驗中...";
+        resultBox.innerText = "檢定校驗中...";
 
         try {
             const response = await fetch('/api/evaluate', {
@@ -238,11 +276,11 @@
             
             if (resData.status === "Accepted") {
                 resultBox.className = "result-card status-Accepted";
-                resultBox.innerHTML = `<strong>品質檢定通過 (Accepted)</strong><br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%<br>校驗耗時: ${resData.execution_time_ms} ms`;
+                resultBox.innerHTML = `<strong>檢定通過</strong><br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>錯誤率: ${resData.error_rate}%`;
                 errorTracker[currentUnitId] = 0;
             } else {
                 resultBox.className = "result-card status-Error";
-                resultBox.innerHTML = `<strong>品質檢定未通過 (${resData.status})</strong><br>錯誤訊息: ${resData.error_message || '數值校驗不匹配'}<br>通過測資數: ${resData.passed_cases}/${resData.total_cases}<br>個人錯誤率: ${resData.error_rate}%`;
+                resultBox.innerHTML = `<strong>未通過 (${resData.status})</strong><br>訊息: ${resData.error_message || '數值不匹配'}<br>錯誤率: ${resData.error_rate}%`;
                 errorTracker[currentUnitId] += 1;
             }
             
@@ -252,7 +290,7 @@
 
         } catch (err) {
             resultBox.className = "result-card status-Error";
-            resultBox.innerText = "連線異常，品質檢定服務未回應。";
+            resultBox.innerText = "服務未回應。";
         }
     }
 </script>
