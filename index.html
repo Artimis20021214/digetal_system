@@ -105,7 +105,7 @@
             <p>在資訊工程、大數據與機器學習研究領域，HRV 時域特徵被廣泛用作情感運算（Affective Computing）、心理壓力偵測模型（Stress Detection）、生理回饋訓練以及疲勞駕駛預警系統之特徵矩陣（Feature Matrix），是連接生理訊號學理與可解釋性人工智慧（XAI）的重要實作基礎。</p>
         </div>
 
-        <div id="ecg-knowledge-area" class="knowledge-content">
+        <div id="ecg-knowledge-area" class="knowledge-content" style="display:none;">
             <p>在進行心率變異度（HRV）特徵工程前，必須先理解原始心電圖（Electrocardiogram, ECG）之標準波型結構。一般心電圖訊號處理之標準硬體採樣率常校準為 1024 Hz，以確保能精確捕捉毫秒等級的特徵變化。</p>
             
             <h3>完整心跳波型：PQRST 複合波</h3>
@@ -125,6 +125,7 @@
             <h3>RR 間期（RR Interval）定義</h3>
             <p>在 HRV 分析中，演算法會偵測連續兩個 R波（R Peak）的頂點，並計算兩者之間的時間差（通常以毫秒 ms 為單位），此數值即為 RR 間期（或稱 NN 間期）。連續不斷的 RR 間期陣列，即為後續計算 RMSSD、SDNN 等特徵的基礎輸入數據。</p>
         </div>
+
         <div id="simulator-area" style="display:none;">
             <p>透過下方監視器，可即時觀察自律神經系統狀態對心跳節律的影響。請點擊按鈕切換生理狀態。</p>
             <div class="simulator-container">
@@ -144,8 +145,6 @@
         </div>
 
         <div id="practice-area" style="display:none;">
-            </div>
-        <div id="practice-area">
             <p id="unit-desc">載入中...</p>
             <div id="formula-box">學理公式加載中...</div>
             <div id="scaffold-box" class="scaffold-card"></div>
@@ -167,7 +166,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <script>
     const unitsData = {
