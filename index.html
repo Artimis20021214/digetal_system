@@ -39,6 +39,16 @@
         .comment-input { flex-grow: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; resize: vertical; min-height: 40px; font-family: inherit; }
         .btn-comment { background-color: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
         .btn-comment:hover { background-color: #2563eb; }
+
+        /* 模擬器專用樣式 */
+        .simulator-container { background-color: #0f172a; padding: 15px; border-radius: 8px; text-align: center; margin-top: 15px; }
+        canvas#ecg-canvas { background-color: #000; border: 1px solid #334155; border-radius: 4px; width: 100%; height: 200px; display: block; margin: 0 auto; }
+        .sim-controls { margin-top: 15px; display: flex; justify-content: center; gap: 15px; }
+        .btn-sim { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+        .btn-sim.high-hrv { background-color: #10b981; color: white; }
+        .btn-sim.low-hrv { background-color: #ef4444; color: white; }
+        .btn-sim:hover { opacity: 0.8; }
+        .sim-status { color: #10b981; font-family: monospace; font-size: 16px; margin-top: 10px; text-align: left; padding-left: 10px;}
     </style>
 </head>
 <body>
@@ -95,6 +105,46 @@
             <p>在資訊工程、大數據與機器學習研究領域，HRV 時域特徵被廣泛用作情感運算（Affective Computing）、心理壓力偵測模型（Stress Detection）、生理回饋訓練以及疲勞駕駛預警系統之特徵矩陣（Feature Matrix），是連接生理訊號學理與可解釋性人工智慧（XAI）的重要實作基礎。</p>
         </div>
 
+        <div id="ecg-knowledge-area" class="knowledge-content">
+            <p>在進行心率變異度（HRV）特徵工程前，必須先理解原始心電圖（Electrocardiogram, ECG）之標準波型結構。一般心電圖訊號處理之標準硬體採樣率常校準為 1024 Hz，以確保能精確捕捉毫秒等級的特徵變化。</p>
+            
+            <h3>完整心跳波型：PQRST 複合波</h3>
+            <p>一次完整的心搏週期由以下幾個關鍵波段組成：</p>
+            <ul>
+                <li><strong>P波（P Wave）</strong>：代表心房去極化（Atrial Depolarization），是心跳週期的起點，呈現小幅度的向上隆起。</li>
+                <li><strong>QRS 複合波（QRS Complex）</strong>：代表心室去極化（Ventricular Depolarization）。由於心室肌肉量大，此波段電氣訊號最強。
+                    <ul>
+                        <li><strong>Q波</strong>：向下的微小偏折。</li>
+                        <li><strong>R波 (R Peak)</strong>：強烈且高聳的向上尖峰，是特徵擷取演算法最容易偵測的基準點。</li>
+                        <li><strong>S波</strong>：R波之後向下的深偏折。</li>
+                    </ul>
+                </li>
+                <li><strong>T波（T Wave）</strong>：代表心室再極化（Ventricular Repolarization），心室肌肉恢復靜息狀態準備下一次收縮。</li>
+            </ul>
+            
+            <h3>RR 間期（RR Interval）定義</h3>
+            <p>在 HRV 分析中，演算法會偵測連續兩個 R波（R Peak）的頂點，並計算兩者之間的時間差（通常以毫秒 ms 為單位），此數值即為 RR 間期（或稱 NN 間期）。連續不斷的 RR 間期陣列，即為後續計算 RMSSD、SDNN 等特徵的基礎輸入數據。</p>
+        </div>
+        <div id="simulator-area" style="display:none;">
+            <p>透過下方監視器，可即時觀察自律神經系統狀態對心跳節律的影響。請點擊按鈕切換生理狀態。</p>
+            <div class="simulator-container">
+                <canvas id="ecg-canvas" width="800" height="200"></canvas>
+                <div class="sim-status" id="sim-readout">目前 RR 間期: 等待數據...</div>
+                <div class="sim-controls">
+                    <button class="btn-sim high-hrv" onclick="setHrvMode('high')">高心率變異度 (放鬆/副交感活躍)</button>
+                    <button class="btn-sim low-hrv" onclick="setHrvMode('low')">低心率變異度 (壓力/交感活躍)</button>
+                </div>
+            </div>
+            <div class="knowledge-content" style="display:block; margin-top: 20px;">
+                <ul>
+                    <li><strong>高心率變異度 (High HRV)</strong>：RR 間期長短不一，心跳節律呈現彈性波動。代表心臟能快速適應環境變化，為健康、放鬆的生理表徵。</li>
+                    <li><strong>低心率變異度 (Low HRV)</strong>：RR 間期極度規律（如節拍器般固化）。通常發生於高壓環境、疲勞或疾病狀態，代表自律神經失去調節彈性。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="practice-area" style="display:none;">
+            </div>
         <div id="practice-area">
             <p id="unit-desc">載入中...</p>
             <div id="formula-box">學理公式加載中...</div>
