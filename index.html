@@ -112,8 +112,8 @@
             <p>一次完整的心搏週期由以下幾個關鍵波段組成：</p>
             
            <div style="text-align: center; margin: 20px 0; background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/SinusRhythmLabels.svg/800px-SinusRhythmLabels.svg.png" alt="標準心電圖 PQRST 波型" style="max-width: 100%; height: auto;" referrerpolicy="no-referrer">
-                <p style="font-size: 13px; color: #64748b; margin-top: 10px; margin-bottom: 0;">標準心電圖 (ECG) PQRST 波型與區間示意圖</p>
+                <canvas id="static-ecg-canvas" width="600" height="250" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"></canvas>
+                <p style="font-size: 13px; color: #64748b; margin-top: 10px; margin-bottom: 0;">標準心電圖 (ECG) PQRST 波型與區間示意圖 (系統動態渲染)</p>
             </div>
 
             <ul>
@@ -217,9 +217,10 @@
     let currentUnitId = "knowledge";
     let errorTracker = { "1": 0, "2": 0, "3": 0 };
 
-    window.onload = function() {
+   window.onload = function() {
         renderUnits();
         switchUnit("knowledge");
+        drawStaticECG(); // 啟動靜態波型渲染
     };
 
    function renderUnits() {
@@ -458,6 +459,67 @@
         return { points: points, endX: x };
     }
 
+    // ==========================================
+    // 靜態 PQRST 心電波型繪製引擎
+    // ==========================================
+    function drawStaticECG() {
+        const canvas = document.getElementById('static-ecg-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // 1. 繪製背景網格 (模擬標準心電圖紙)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#f8fafc';
+        for(let i=0; i<w; i+=10) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+        for(let i=0; i<h; i+=10) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+        ctx.strokeStyle = '#e2e8f0';
+        for(let i=0; i<w; i+=50) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+        for(let i=0; i<h; i+=50) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
+
+        // 2. 繪製 PQRST 幾何波型
+        const baseline = h / 2 + 20;
+        ctx.beginPath();
+        ctx.moveTo(50, baseline);
+        ctx.lineTo(120, baseline); // 起始等電位線
+
+        // P波 (貝茲曲線)
+        ctx.bezierCurveTo(140, baseline - 35, 160, baseline - 35, 180, baseline);
+        ctx.lineTo(210, baseline); // PR段
+
+        // QRS 複合波
+        ctx.lineTo(220, baseline + 20);  // Q波
+        ctx.lineTo(250, baseline - 110); // R波
+        ctx.lineTo(270, baseline + 40);  // S波
+        ctx.lineTo(290, baseline);       // 回歸基線
+
+        // ST段
+        ctx.lineTo(340, baseline);
+
+        // T波 (貝茲曲線)
+        ctx.bezierCurveTo(370, baseline - 45, 410, baseline - 45, 440, baseline);
+
+        // 結束段
+        ctx.lineTo(550, baseline);
+
+        // 渲染波型線條樣式
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+
+        // 3. 繪製波段文字標籤
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText('P', 145, baseline - 40);
+        ctx.fillText('Q', 205, baseline + 35);
+        ctx.fillText('R', 242, baseline - 120);
+        ctx.fillText('S', 275, baseline + 45);
+        ctx.fillText('T', 385, baseline - 50);
+    }
     function startSimulator() {
         const canvas = document.getElementById('ecg-canvas');
         if(!canvas) return;
