@@ -163,6 +163,19 @@
                     <textarea id="new-comment-text" class="comment-input" placeholder="在此輸入探討演算法細節或提問..."></textarea>
                     <button class="btn-comment" onclick="postComment()">發布留言</button>
                 </div>
+                <div id="video-area" class="knowledge-content" style="display:none;">
+            <p>透過微型講座（Webcasts）與影音演示，以更具象的方式理解心率變異度（HRV）在運動訓練、壓力監測與自律神經系統中的實際應用。此模組能有效對接視覺與聽覺學習路徑。</p>
+            
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid #e2e8f0;">
+                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/sLUZk5Ilsx0" title="HRV 心率變異度影音教學" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            
+            <h3 style="margin-top: 20px;">學習重點引導</h3>
+            <ul>
+                <li>觀察 HRV 數據在不同生理狀態（如過度訓練、身心平衡）下的變化趨勢。</li>
+                <li>對照先前實作之 RMSSD 與 SDNN 演算法，理解時域特徵在實際穿戴裝置上的應用價值。</li>
+            </ul>
+        </div>
             </div>
         </div>
     </div>
@@ -203,7 +216,7 @@
         switchUnit("knowledge");
     };
 
-    function renderUnits() {
+   function renderUnits() {
         const listContainer = document.getElementById("unit-list");
         listContainer.innerHTML = "";
         
@@ -228,6 +241,14 @@
         simBtn.innerText = "探索體驗：HRV 動態模擬器";
         simBtn.onclick = () => switchUnit("sim");
         listContainer.appendChild(simBtn);
+
+        // 新增：多媒體影音導覽按鈕
+        const videoBtn = document.createElement("button");
+        videoBtn.className = `unit-btn` + (currentUnitId === "video" ? " active" : "");
+        videoBtn.id = "btn-video";
+        videoBtn.innerText = "多媒體影音：HRV 微型講座";
+        videoBtn.onclick = () => switchUnit("video");
+        listContainer.appendChild(videoBtn);
         
         // 實作單元導覽按鈕
         Object.values(unitsData).forEach(unit => {
@@ -249,6 +270,7 @@
         const knowledgeArea = document.getElementById("knowledge-area");
         const ecgArea = document.getElementById("ecg-knowledge-area");
         const simArea = document.getElementById("simulator-area");
+        const videoArea = document.getElementById("video-area");
         const practiceArea = document.getElementById("practice-area");
         const resultBox = document.getElementById("result-box");
         
@@ -256,12 +278,14 @@
         knowledgeArea.style.display = "none";
         ecgArea.style.display = "none";
         simArea.style.display = "none";
+        if(videoArea) videoArea.style.display = "none";
         practiceArea.style.display = "none";
         if(resultBox) resultBox.style.display = "none";
 
         // 停止模擬器動畫(若在運行中)
         if (window.stopSimulator) window.stopSimulator();
 
+        // 依據選擇單元顯示對應區塊
         if (unitId === "knowledge") {
             document.getElementById("workstation-title").innerText = "學理導讀中心 — 心率變異度 (HRV)";
             knowledgeArea.style.display = "block";
@@ -272,6 +296,9 @@
             document.getElementById("workstation-title").innerText = "探索體驗 — HRV 自律神經動態模擬";
             simArea.style.display = "block";
             if (window.startSimulator) window.startSimulator();
+        } else if (unitId === "video") {
+            document.getElementById("workstation-title").innerText = "多媒體影音中心 — 微型講座 (Webcasts)";
+            videoArea.style.display = "block";
         } else {
             practiceArea.style.display = "block";
             const unit = unitsData[unitId];
